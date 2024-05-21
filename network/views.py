@@ -72,7 +72,7 @@ def register(request):
 # API Handlers
 @csrf_exempt
 @login_required
-def post(request):
+def posts(request):
   """
   API view to create a new post.
   """
@@ -99,5 +99,11 @@ def post(request):
 
     # Return success response
     return JsonResponse({'message': 'Post created successfully', 'id': new_post.id}, status=201)
+  elif request.method == 'GET':
+    all_posts = Post.objects.all().order_by('-timestamp')  # Order by latest first
+
+    return render(request, 'network/all_posts.html', {
+        'posts': all_posts
+    })
   else:
     return JsonResponse({'error': 'Method not allowed'}, status=405)
