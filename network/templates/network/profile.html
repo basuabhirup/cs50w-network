@@ -1,0 +1,27 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h1>Profile: {{ profile_user.username }}</h1>
+
+    <p>Followers: {{ follower_count }}</p>
+    <p>Following: {{ following_count }}</p>  
+    
+    {% if show_follow_button %}
+        {% if following %}
+            <a href="">Unfollow</a>
+        {% else %}
+            <a href="">Follow</a>
+        {% endif %}
+    {% endif %}
+
+    <h2>Posts</h2>
+    <ul>
+    {% for post in posts %}
+        <li>
+        <p><b>{{ post.timestamp }}</b></p>
+        <p>{{ post.content }}</p>
+        </li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}
