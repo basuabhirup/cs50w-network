@@ -69,9 +69,38 @@ def register(request):
         return render(request, "network/register.html")
 
 
+def profile(request, username):
+  # Get the user with the given username
+  user = get_object_or_404(User, username=username)
+
+  # Get all posts for the user
+  user_posts = Post.objects.filter(user=user).order_by('-timestamp')
+
+  # Get follower count for the user
+  follower_count = user.followers.count()
+
+  # Get following count for the user (optional)
+  following_count = user.following.count()  # Optional, depending on your model
+  
+  # Check if the user is viewing their own profile
+  show_follow_button = request.user != user and request.user.is_authenticated
+
+  # Check if current user is following the profile user (if logged in)
+  following = False
+  if show_follow_button:
+    following = Follower.objects.filter(follower=request.user, following=user).exists()
+
+  return render(request, 'network/profile.html', {
+      'profile_user': user,
+      'posts': user_posts,
+      'follower_count': follower_count,
+      'following_count': following_count,
+      'following': following,
+      'show_follow_button': show_follow_button
+  })
+
 # API Handlers
 @csrf_exempt
-@login_required
 def posts(request):
   """
   API view to create a new post.
@@ -109,32 +138,49 @@ def posts(request):
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-def profile(request, username):
-  # Get the user with the given username
-  user = get_object_or_404(User, username=username)
+@csrf_exempt
+@login_required
+def follow(request, username):
+  """
+  API view to follow a particular user.
+  """
+  if request.method != 'POST':
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+  else:
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+      return JsonResponse({'error': 'Authentication required'}, status=401)
 
-  # Get all posts for the user
-  user_posts = Post.objects.filter(user=user).order_by('-timestamp')
+    # Parse request data
+    try:
+      data = json.loads(request.body)
+      to_be_followed = data.get('follow')
+      user_to_follow = get_object_or_404(User, username=username)
+      
+    except Exception as e:
+      return JsonResponse({'error': 'Invalid data format'}, status=400)
 
-  # Get follower count for the user
-  follower_count = user.followers.count()
+    # Validate content
+    if not username or not user_to_follow:
+      return JsonResponse({'error': 'Wrong username to be followed'}, status=400)
+    
+    if request.user == user_to_follow: 
+      return JsonResponse({'error': 'A user can\'t follow themselves'}, status=400)
 
-  # Get following count for the user (optional)
-  following_count = user.following.count()  # Optional, depending on your model
-  
-  # Check if the user is viewing their own profile
-  show_follow_button = request.user != user and request.user.is_authenticated
-
-  # Check if current user is following the profile user (if logged in)
-  following = False
-  if show_follow_button:
-    following = Follower.objects.filter(follower=request.user, following=user).exists()
-
-  return render(request, 'network/profile.html', {
-      'profile_user': user,
-      'posts': user_posts,
-      'follower_count': follower_count,
-      'following_count': following_count,
-      'following': following,
-      'show_follow_button': show_follow_button
-  })
+     
+    # Follow or Unfollow
+    if to_be_followed:
+      follower = Follower.objects.create(follower=request.user, following=user_to_follow)
+      
+      # Return success response
+      return JsonResponse({'message': 'User followed successfully'}, status=200)
+    else:
+      follower = Follower.objects.filter(follower=request.user, following=user_to_follow)
+      if follower.exists():
+        follower.delete()
+        
+        # Return success response
+        return JsonResponse({'message': 'User unfollowed successfully'}, status=200)
+      else:
+        return JsonResponse({'error': 'Already not following'}, status=400)
+    

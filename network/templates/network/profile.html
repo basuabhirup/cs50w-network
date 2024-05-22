@@ -3,14 +3,14 @@
 {% block body %}
     <h1>Profile: {{ profile_user.username }}</h1>
 
-    <p>Followers: {{ follower_count }}</p>
-    <p>Following: {{ following_count }}</p>  
+    <p id="followers">Followers: {{ follower_count }}</p>
+    <p id="following">Following: {{ following_count }}</p>  
     
     {% if show_follow_button %}
         {% if following %}
-            <a href="">Unfollow</a>
+            <button name="unfollow" onclick="handleFollowing(event)">Unfollow</button>
         {% else %}
-            <a href="">Follow</a>
+            <button name="follow" onclick="handleFollowing(event)">Follow</button>
         {% endif %}
     {% endif %}
 
