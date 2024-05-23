@@ -173,6 +173,38 @@ def posts(request):
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
+@login_required
+@csrf_exempt
+def edit_post(request, post_id):
+  """
+  API view to edit a particular post.
+  """    
+  if request.method != 'PUT':
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+  
+  post = get_object_or_404(Post, pk=post_id)
+  
+  # Ensure user can only edit their own posts (security check)
+  if not post.user == request.user:
+    return JsonResponse({'error': 'Can\'t edit others\' post.'}, status=403)
+
+  # Parse request data
+  data = json.loads(request.body)
+  new_content = data.get('new_content')
+  
+  if not new_content:
+    return JsonResponse({'error': 'Invalid data format'}, status=400)    
+  
+  try:
+    post.content = new_content
+    post.save()
+    # Return success response
+    return JsonResponse({'message': 'Post updated successfully' }, status=200)
+  
+  except Exception as e:
+    return JsonResponse({'error': 'Error updating Database!'}, status=500)
+
+
 @csrf_exempt
 @login_required
 def follow(request, username):

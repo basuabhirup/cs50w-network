@@ -84,6 +84,28 @@ const onPostEdit = (event) => {
     event.preventDefault();
     const newContent = document.getElementById(`new-content-${postId}`).value;
     console.log(newContent, postId);
+
+    fetch(`/posts/${postId}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        "new_content": newContent,
+      }),
+    })
+    .then((res) => res.json().then((json) => {
+      if (res.status === 200) {
+        postElement.innerHTML = ''
+        postElement.textContent = newContent
+        likeButton.style.display = "inline-block"
+        editButton.style.display = "inline-block"
+        likeCountsElement.style.display = "block"
+        console.log(json.message)
+      } else {
+        alert(json.error)
+      }
+    }))
+    .catch((err) => {
+      console.error(err)
+    })
   });
 
   editForm.addEventListener("reset", (event) => {
