@@ -8,13 +8,16 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
-from .models import Post, Follower
+from .models import Post, Follower, Like
 
 from .models import User
 
 
 def index(request):
+  if request.user.is_authenticated:
     return render(request, "network/index.html")
+  else:
+      return render(request, "network/login.html")
 
 
 def login_view(request):
@@ -99,6 +102,29 @@ def profile(request, username):
       'show_follow_button': show_follow_button
   })
 
+@login_required
+def following_posts(request):
+  # Get users the current user is following
+  following = request.user.following.all()
+  
+  # Get actual User objects from following list
+  following_users = [f.following for f in following]
+  
+  # Get all posts from users being followed
+  following_posts = Post.objects.filter(user__in=following_users).order_by('-timestamp')
+  posts = []
+  for post in following_posts:
+    already_liked = post.liked_by.filter(user=request.user).exists()
+    posts.append({
+      'post': post,
+      'already_liked': already_liked
+      })
+
+  return render(request, 'network/all_posts.html', {
+    'posts': posts
+    })
+  
+  
 # API Handlers
 @csrf_exempt
 def posts(request):
@@ -129,10 +155,17 @@ def posts(request):
     # Return success response
     return JsonResponse({'message': 'Post created successfully', 'id': new_post.id}, status=201)
   elif request.method == 'GET':
-    all_posts = Post.objects.all().order_by('-timestamp')  # Order by latest first
+    all_posts = Post.objects.all().prefetch_related('liked_by').order_by('-timestamp') 
+    posts = []
+    for post in all_posts:
+      already_liked = post.liked_by.filter(user=request.user).exists()
+      posts.append({
+        'post': post,
+        'already_liked': already_liked,
+        })
 
     return render(request, 'network/all_posts.html', {
-        'posts': all_posts
+        'posts': posts
     })
   else:
     return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -142,7 +175,7 @@ def posts(request):
 @login_required
 def follow(request, username):
   """
-  API view to follow a particular user.
+  API view to follow or unfollow a particular user.
   """
   if request.method != 'POST':
     return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -184,3 +217,23 @@ def follow(request, username):
       else:
         return JsonResponse({'error': 'Already not following'}, status=400)
     
+    
+@login_required
+def like(request, post_id):
+  """
+  API view to like or unlike a particular post.
+  """
+  post = get_object_or_404(Post, pk=post_id)
+    
+  # Check for existing like and update accordingly
+  like, created = Like.objects.get_or_create(user=request.user, post=post)
+  
+  if not created:  # Unlike scenario (existing like record)
+    like.delete()
+    post.likes -= 1
+  else:  # Like scenario (new like record)
+    post.likes += 1
+  post.save()
+  like_count = post.likes
+  
+  return HttpResponse(like_count)

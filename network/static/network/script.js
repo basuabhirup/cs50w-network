@@ -24,12 +24,9 @@ const onNewPost = (e) => {
 
 const handleFollowing = (event) => {
   const follow = event.target.name === "follow";
-  const username = window.location.pathname.split("/")[2];
-  // console.log(username, follow);
   fetch(`/follow/${username}`, {
     method: "POST",
     body: JSON.stringify({
-      username,
       follow,
     }),
   }).then((res) => {
@@ -69,4 +66,22 @@ const handleFollowing = (event) => {
 
 // onPostEdit
 
-// handleLiking
+const handleLiking = (event) => {
+  const button = event.target;
+  const postId = button.dataset.postId;
+  const likeCount = document.getElementById(`like-count-${postId}`);
+
+  fetch(`/like/${postId}`).then((res) => {
+    if (res.status === 200) {
+      res.text().then((text) => {
+        if (button.textContent.trim() === "Like") {
+          button.textContent = "Unlike";
+          likeCount.textContent = "Likes: " + text;
+        } else {
+          button.textContent = "Like";
+          likeCount.textContent = "Likes: " + text;
+        }
+      });
+    }
+  });
+};
