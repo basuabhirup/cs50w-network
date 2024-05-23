@@ -1,17 +1,12 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-from .models import Post, Follower, Like
-
-from .models import User
-
+from .models import Post, Follower, Like, User
 
 def index(request):
   if request.user.is_authenticated:
@@ -200,20 +195,25 @@ def follow(request, username):
     if request.user == user_to_follow: 
       return JsonResponse({'error': 'A user can\'t follow themselves'}, status=400)
 
+    followers_count = user_to_follow.followers.count()
      
     # Follow or Unfollow
     if to_be_followed:
       follower = Follower.objects.create(follower=request.user, following=user_to_follow)
       
+      followers_count += 1
+      
       # Return success response
-      return JsonResponse({'message': 'User followed successfully'}, status=200)
+      return JsonResponse({'message': 'User followed successfully', 'followers_count': followers_count }, status=200)
     else:
       follower = Follower.objects.filter(follower=request.user, following=user_to_follow)
       if follower.exists():
         follower.delete()
+
+        followers_count -= 1
         
         # Return success response
-        return JsonResponse({'message': 'User unfollowed successfully'}, status=200)
+        return JsonResponse({'message': 'User unfollowed successfully', 'followers_count': followers_count }, status=200)
       else:
         return JsonResponse({'error': 'Already not following'}, status=400)
     

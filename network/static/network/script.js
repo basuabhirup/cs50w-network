@@ -24,6 +24,7 @@ const onNewPost = (e) => {
 
 const handleFollowing = (event) => {
   const follow = event.target.name === "follow";
+  const username = window.location.pathname.split("/")[2];
   fetch(`/follow/${username}`, {
     method: "POST",
     body: JSON.stringify({
@@ -31,35 +32,27 @@ const handleFollowing = (event) => {
     }),
   }).then((res) => {
     if (res.status === 200) {
-      if (!!document.querySelector("button[name='follow']")) {
-        // Change followers count without refreshing the page
-        document.querySelector("#followers").textContent =
-          document.querySelector("#followers").textContent.split(": ")[0] +
-          ": " +
-          (parseInt(
-            document.querySelector("#followers").textContent.split(": ")[1]
-          ) +
-            parseInt(1));
+      res.json().then((json) => {
+        if (!!document.querySelector("button[name='follow']")) {
+          // Change followers count without refreshing the page
+          document.querySelector("#followers").textContent =
+            "Followers: " + json.followers_count;
 
-        // Toggle the follow button into unfollow
-        document.querySelector("button[name='follow']").textContent =
-          "Unfollow";
-        document.querySelector("button[name='follow']").name = "unfollow";
-      } else {
-        // Change followers count without refreshing the page
-        document.querySelector("#followers").textContent =
-          document.querySelector("#followers").textContent.split(": ")[0] +
-          ": " +
-          (parseInt(
-            document.querySelector("#followers").textContent.split(": ")[1]
-          ) -
-            parseInt(1));
+          // Toggle the follow button into unfollow
+          document.querySelector("button[name='follow']").textContent =
+            "Unfollow";
+          document.querySelector("button[name='follow']").name = "unfollow";
+        } else {
+          // Change followers count without refreshing the page
+          document.querySelector("#followers").textContent =
+            "Followers: " + json.followers_count;
 
-        // Toggle the unfollow button into follow
-        document.querySelector("button[name='unfollow']").textContent =
-          "Follow";
-        document.querySelector("button[name='unfollow']").name = "follow";
-      }
+          // Toggle the unfollow button into follow
+          document.querySelector("button[name='unfollow']").textContent =
+            "Follow";
+          document.querySelector("button[name='unfollow']").name = "follow";
+        }
+      });
     }
   });
 };
