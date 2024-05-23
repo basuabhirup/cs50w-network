@@ -18,6 +18,7 @@ const onNewPost = (e) => {
   }).then((res) => {
     if (res.status === 201) {
       newPostContent.value = "";
+      window.location.pathname = "/posts"
     }
   });
 };
