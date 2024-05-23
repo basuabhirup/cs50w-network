@@ -6,11 +6,8 @@
     {% for post in posts %}
     <div class="post">
         <p><a href="{% url 'profile' post.post.user.username %}"><b>{{ post.post.user.username }}</b></a> - {{ post.post.timestamp }}</p>
-        <p>{{ post.post.content }}</p>
+        <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
         {% if user.is_authenticated %}
-            {% if post.post.user == user %}
-                <p><a href="#">Edit</a></p>
-            {% endif %}
             <button class="like-button" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
                 {% if post.already_liked == True %}
                     Unlike
@@ -18,6 +15,9 @@
                     Like
                 {% endif %}
             </button>
+            {% if post.post.user == user %}
+                <button class="edit-button" data-post-id="{{ post.post.id }}" onclick="onPostEdit(event)">Edit</button>
+            {% endif %}
         {% endif %}
         <p id="like-count-{{ post.post.id }}">Likes: {{ post.post.likes }}</p>
         </div>

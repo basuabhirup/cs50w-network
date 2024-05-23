@@ -18,8 +18,21 @@
     <ul>
     {% for post in posts %}
         <li>
-        <p><b>{{ post.timestamp }}</b></p>
-        <p>{{ post.content }}</p>
+        <p><b>{{ post.post.timestamp }}</b></p>
+        <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
+        {% if user.is_authenticated %}
+            <button class="like-button" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
+                {% if post.already_liked == True %}
+                    Unlike
+                {% else %}
+                    Like
+                {% endif %}
+            </button>
+            {% if profile_user == user %}
+                <button class="edit-button" data-post-id="{{ post.post.id }}" onclick="onPostEdit(event)">Edit</button>
+            {% endif %}
+        {% endif %}
+    <p id="like-count-{{ post.post.id }}">Likes: {{ post.post.likes }}</p>
         </li>
     {% endfor %}
     </ul>

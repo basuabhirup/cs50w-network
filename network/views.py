@@ -73,6 +73,13 @@ def profile(request, username):
 
   # Get all posts for the user
   user_posts = Post.objects.filter(user=user).order_by('-timestamp')
+  posts = []
+  for post in user_posts:
+    already_liked = post.liked_by.filter(user=request.user).exists()
+    posts.append({
+      'post': post,
+      'already_liked': already_liked
+      })
 
   # Get follower count for the user
   follower_count = user.followers.count()
@@ -90,7 +97,7 @@ def profile(request, username):
 
   return render(request, 'network/profile.html', {
       'profile_user': user,
-      'posts': user_posts,
+      'posts': posts,
       'follower_count': follower_count,
       'following_count': following_count,
       'following': following,

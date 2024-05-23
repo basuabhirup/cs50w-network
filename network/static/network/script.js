@@ -57,7 +57,43 @@ const handleFollowing = (event) => {
   });
 };
 
-// onPostEdit
+const onPostEdit = (event) => {
+  const button = event.target;
+  const postId = button.dataset.postId;
+  const postElement = document.getElementById(`post-content-${postId}`);
+  const postContent = new String(postElement.textContent);
+  const likeButton = document.querySelector(`button[data-post-id="${postId}"].like-button`)
+  const editButton = document.querySelector(`button[data-post-id="${postId}"].edit-button`)
+  const likeCountsElement = document.querySelector(`#like-count-${postId}`)
+
+  postElement.innerHTML = `
+  <form id="edit-post-${postId}">
+  <textarea id="new-content-${postId}" name="content" rows="5" cols="50">${postContent}</textarea>
+  <button type='submit'>Save</button>
+  <button type="reset">Cancel</button>
+  </form>
+  `;
+
+  likeButton.style.display = "none"
+  editButton.style.display = "none"
+  likeCountsElement.style.display = "none"
+
+  const editForm = document.getElementById(`edit-post-${postId}`);
+
+  editForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const newContent = document.getElementById(`new-content-${postId}`).value;
+    console.log(newContent, postId);
+  });
+
+  editForm.addEventListener("reset", (event) => {
+    event.preventDefault()
+    postElement.innerHTML = postContent
+    likeButton.style.display = "inline-block"
+    editButton.style.display = "inline-block"
+    likeCountsElement.style.display = "block"
+  })
+};
 
 const handleLiking = (event) => {
   const button = event.target;
