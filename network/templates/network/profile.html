@@ -14,9 +14,9 @@
     
     {% if show_follow_button %}
         {% if following %}
-            <button class="btn btn-sm btn-outline-primary mb-4" name="unfollow" onclick="handleFollowing(event)">Unfollow</button>
+            <button class="btn btn-sm btn-outline-primary mb-5" name="unfollow" onclick="handleFollowing(event)">Unfollow</button>
         {% else %}
-            <button class="btn btn-sm btn-outline-primary mb-4" name="follow" onclick="handleFollowing(event)">Follow</button>
+            <button class="btn btn-sm btn-outline-primary mb-5" name="follow" onclick="handleFollowing(event)">Follow</button>
         {% endif %}
     {% endif %}
 
@@ -24,9 +24,9 @@
     <nav aria-label="Page navigation example">
         <ul class="pagination">
         {% if posts.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">&laquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">&laquo; Previous</a></li>
         {% else %}
-            <li class="page-item not-allowed"><a class="page-link text-muted">&laquo;</a></li>
+            <li class="page-item disabled"><a class="page-link text-muted">&laquo; Previous</a></li>
         {% endif %}
         
         {% for page_num in paginator.page_range %}
@@ -36,9 +36,9 @@
         {% endfor %}
         
         {% if posts.has_next %}
-            <li class="page-item not-allowed"><a class="page-link" href="?page={{ posts.next_page_number }}">&raquo;</a></li>
+            <li class="page-item not-allowed"><a class="page-link" href="?page={{ posts.next_page_number }}">Next &raquo;</a></li>
         {% else %}
-            <li class=""><a class="page-link text-muted">&raquo;</a></li>
+            <li class="page-item disabled"><a class="page-link text-muted">Next &raquo;</a></li>
         {% endif %}
         </ul>
     </nav>
@@ -54,7 +54,7 @@
                     </button>
                 {% endif %}
                 <p class="text-muted mt-0">{{ post.post.timestamp }}</p>
-                <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
+                <p class="h4" id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
                 {% if user.is_authenticated %}
                     <button class="like-button border-0 bg-light" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
                         {% if post.already_liked == True %}
@@ -70,5 +70,29 @@
             </div>
         {% endfor %}
     </div>
+
+    {% if paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+        {% if posts.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">&laquo; Previous</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link text-muted">&laquo; Previous</a></li>
+        {% endif %}
+        
+        {% for page_num in paginator.page_range %}
+            <li class="page-item {% if page_num == posts.number %}active{% endif %}">
+            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+        {% endfor %}
+        
+        {% if posts.has_next %}
+            <li class="page-item not-allowed"><a class="page-link" href="?page={{ posts.next_page_number }}">Next &raquo;</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link text-muted">Next &raquo;</a></li>
+        {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
 {% endblock %}
