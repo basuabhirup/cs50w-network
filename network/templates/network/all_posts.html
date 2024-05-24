@@ -1,7 +1,20 @@
 {% extends "network/layout.html" %}
 
+{% block title %}
+    {% if following_posts == True %}
+        Following Posts
+    {% else %}
+        All Posts
+    {% endif %}
+{% endblock %}
+
+
 {% block body %}
-    <h1>All Posts</h1>
+    {% if following_posts == True %}
+        <h1>Following Posts</h1>
+    {% else %}
+        <h1>All Posts</h1>
+    {% endif %}
 
     {% if paginator.num_pages > 1 %}
     <nav aria-label="Page navigation example">
@@ -46,8 +59,10 @@
                         <i class="bi bi-heart text-danger"></i>
                     {% endif %}
                 </button>
+                <p class="ml-2" id="like-count-{{ post.post.id }}">{{ post.post.likes }}</p>
+            {% else %}
+                <p id="like-count-{{ post.post.id }}"><i class="bi bi-heart text-danger"></i> &nbsp;{{ post.post.likes }}</p> 
             {% endif %}
-            <p class="ml-2" id="like-count-{{ post.post.id }}">{{ post.post.likes }}</p>
         </div>
         {% endfor %}
     </div>

@@ -144,7 +144,8 @@ def following_posts(request):
 
   return render(request, 'network/all_posts.html', {
     'posts': page_obj,
-    'paginator': paginator    
+    'paginator': paginator,
+    'following_posts': True
     })
   
   
