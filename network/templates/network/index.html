@@ -1,8 +1,8 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <div class="container">
-        <form id="new-post-form" onsubmit="onNewPost(event)">
+    <div class="post-container">
+        <form class="w-100" id="new-post-form" onsubmit="onNewPost(event)">
             <div class="form-group p-3 m-2 border border-secondary rounded">
                 <label class="form-label font-weight-bold" for="new-post">New Post</label>
                 <textarea class="form-control mb-2" id="new-post" name="new-post" placeholder="Type your post here" rows="5"></textarea>
