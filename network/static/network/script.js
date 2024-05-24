@@ -59,7 +59,7 @@ const handleFollowing = (event) => {
 };
 
 const onPostEdit = (event) => {
-  const button = event.target;
+  const button = event.target.closest(".edit-button");
   const postId = button.dataset.postId;
   const postElement = document.getElementById(`post-content-${postId}`);
   const postContent = new String(postElement.textContent);
@@ -69,7 +69,7 @@ const onPostEdit = (event) => {
 
   postElement.innerHTML = `
   <form id="edit-post-${postId}">
-  <textarea id="new-content-${postId}" name="content" rows="5" cols="50">${postContent}</textarea>
+  <textarea id="new-content-${postId}" name="content" rows="5" cols="80">${postContent}</textarea>
   <button type='submit'>Save</button>
   <button type="reset">Cancel</button>
   </form>

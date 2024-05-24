@@ -27,24 +27,30 @@
     </nav>
     {% endif %}
 
-    {% for post in posts %}
-    <div class="post">
-        <p><a href="{% url 'profile' post.post.user.username %}"><b>{{ post.post.user.username }}</b></a> - {{ post.post.timestamp }}</p>
-        <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
-        {% if user.is_authenticated %}
-            <button class="like-button" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
-                {% if post.already_liked == True %}
-                    Unlike
-                {% else %}
-                    Like
-                {% endif %}
-            </button>
+    <div class="post-container">
+        {% for post in posts %}
+        <div class="post px-4 py-2 border border border-secondary rounded bg-light mb-2 w-100">
+            <p class="mb-0 d-inline-block mr-3"><a href="{% url 'profile' post.post.user.username %}"><strong>{{ post.post.user.username }}</strong></a></p>
             {% if post.post.user == user %}
-                <button class="edit-button" data-post-id="{{ post.post.id }}" onclick="onPostEdit(event)">Edit</button>
+                <button class="edit-button btn btn-sm btn-outline-secondary" data-post-id="{{ post.post.id }}" onclick="onPostEdit(event)">
+                    <i class="bi bi-pencil"></i>
+                </button>
             {% endif %}
-        {% endif %}
-        <p id="like-count-{{ post.post.id }}">Likes: {{ post.post.likes }}</p>
+            <p class="text-muted mt-0 fs-6">{{ post.post.timestamp }}</p>
+            <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
+            {% if user.is_authenticated %}
+                <button class="like-button" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
+                    {% if post.already_liked == True %}
+                        Unlike
+                    {% else %}
+                        Like
+                    {% endif %}
+                </button>
+            {% endif %}
+            <p id="like-count-{{ post.post.id }}">Likes: {{ post.post.likes }}</p>
         </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+   
 
 {% endblock %}

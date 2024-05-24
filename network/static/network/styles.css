@@ -1,0 +1,20 @@
+.body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.post-container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    width: 85%;
+}
+
+@media (min-width: 992px) {
+    .post-container {
+        width: 55%;
+    }
+}

@@ -1,20 +1,21 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h1>Profile: {{ profile_user.username }}</h1>
+    <h1>{{ profile_user.username }}</h1>
 
-    <p id="followers">Followers: {{ follower_count }}</p>
-    <p id="following">Following: {{ following_count }}</p>  
+    <div class="container text-center mb-2">
+        <span id="followers" class="mx-2">Followers: {{ follower_count }}</span>
+        <span id="following" class="mx-2">Following: {{ following_count }}</span> 
+    </div> 
     
     {% if show_follow_button %}
         {% if following %}
-            <button name="unfollow" onclick="handleFollowing(event)">Unfollow</button>
+            <button class="btn btn-sm btn-outline-primary mb-4" name="unfollow" onclick="handleFollowing(event)">Unfollow</button>
         {% else %}
-            <button name="follow" onclick="handleFollowing(event)">Follow</button>
+            <button class="btn btn-sm btn-outline-primary mb-4" name="follow" onclick="handleFollowing(event)">Follow</button>
         {% endif %}
     {% endif %}
 
-    <h2>Posts</h2>
     {% if paginator.num_pages > 1 %}
     <nav aria-label="Page navigation example">
         <ul class="pagination">
@@ -38,26 +39,30 @@
         </ul>
     </nav>
     {% endif %}
-    <ul>
-    {% for post in posts %}
-        <li>
-        <p><b>{{ post.post.timestamp }}</b></p>
-        <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
-        {% if user.is_authenticated %}
-            <button class="like-button" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
-                {% if post.already_liked == True %}
-                    Unlike
-                {% else %}
-                    Like
+
+    <div class="post-container">
+        {% for post in posts %}
+            <div class="post px-4 py-2 border border border-secondary rounded bg-light mb-2 w-100">
+                <p class="mb-0 d-inline-block mr-3"><a href="{% url 'profile' post.post.user.username %}"><strong>{{ post.post.user.username }}</strong></a></p>
+                {% if post.post.user == user %}
+                    <button class="edit-button btn btn-sm btn-outline-secondary" data-post-id="{{ post.post.id }}" onclick="onPostEdit(event)">
+                        <i class="bi bi-pencil"></i>
+                    </button>
                 {% endif %}
-            </button>
-            {% if profile_user == user %}
-                <button class="edit-button" data-post-id="{{ post.post.id }}" onclick="onPostEdit(event)">Edit</button>
-            {% endif %}
-        {% endif %}
-    <p id="like-count-{{ post.post.id }}">Likes: {{ post.post.likes }}</p>
-        </li>
-    {% endfor %}
-    </ul>
+                <p class="text-muted mt-0">{{ post.post.timestamp }}</p>
+                <p id="post-content-{{ post.post.id }}">{{ post.post.content }}</p>
+                {% if user.is_authenticated %}
+                    <button class="like-button" data-post-id="{{ post.post.id }}" onclick="handleLiking(event)">
+                        {% if post.already_liked == True %}
+                            Unlike
+                        {% else %}
+                            Like
+                        {% endif %}
+                    </button>
+                {% endif %}
+                <p id="like-count-{{ post.post.id }}">Likes: {{ post.post.likes }}</p>
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock %}
