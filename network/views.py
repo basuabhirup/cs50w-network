@@ -76,11 +76,21 @@ def profile(request, username):
   user_posts = Post.objects.filter(user=user).order_by('-timestamp')
   posts = []
   for post in user_posts:
-    already_liked = post.liked_by.filter(user=request.user).exists()
-    posts.append({
-      'post': post,
-      'already_liked': already_liked
+    if request.user.is_authenticated:
+      already_liked = post.liked_by.filter(user=request.user).exists()
+      posts.append({
+        'post': post,
+        'already_liked': already_liked
       })
+    else:
+      posts.append({
+        'post': post
+      })
+  
+  paginator = Paginator(posts, 10)
+
+  page_number = request.GET.get('page')
+  page_obj = paginator.get_page(page_number)
 
   # Get follower count for the user
   follower_count = user.followers.count()
@@ -98,11 +108,12 @@ def profile(request, username):
 
   return render(request, 'network/profile.html', {
       'profile_user': user,
-      'posts': posts,
+      'posts': page_obj,
       'follower_count': follower_count,
       'following_count': following_count,
       'following': following,
-      'show_follow_button': show_follow_button
+      'show_follow_button': show_follow_button,
+      'paginator': paginator
   })
 
 @login_required
@@ -124,7 +135,7 @@ def following_posts(request):
     posts.append({
       'post': post,
       'already_liked': already_liked
-      })
+    })
     
   paginator = Paginator(posts, 10)
 
@@ -170,12 +181,17 @@ def posts(request):
     all_posts = Post.objects.all().prefetch_related('liked_by').order_by('-timestamp') 
     posts = []
     for post in all_posts:
-      already_liked = post.liked_by.filter(user=request.user).exists()
-      posts.append({
-        'post': post,
-        'already_liked': already_liked,
+      if request.user.is_authenticated:
+        already_liked = post.liked_by.filter(user=request.user).exists()
+        posts.append({
+          'post': post,
+          'already_liked': already_liked
         })
-      
+      else:
+        posts.append({
+          'post': post
+        })
+        
     paginator = Paginator(posts, 10)
 
     page_number = request.GET.get('page')
