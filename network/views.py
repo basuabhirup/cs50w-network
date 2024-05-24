@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Post, Follower, Like, User
+from django.core.paginator import Paginator
 
 def index(request):
   if request.user.is_authenticated:
@@ -105,7 +106,10 @@ def profile(request, username):
   })
 
 @login_required
-def following_posts(request):
+def following_posts(request):  
+  if request.method != 'GET':
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+  
   # Get users the current user is following
   following = request.user.following.all()
   
@@ -121,9 +125,15 @@ def following_posts(request):
       'post': post,
       'already_liked': already_liked
       })
+    
+  paginator = Paginator(posts, 10)
+
+  page_number = request.GET.get('page')
+  page_obj = paginator.get_page(page_number)
 
   return render(request, 'network/all_posts.html', {
-    'posts': posts
+    'posts': page_obj,
+    'paginator': paginator    
     })
   
   
@@ -165,10 +175,17 @@ def posts(request):
         'post': post,
         'already_liked': already_liked,
         })
+      
+    paginator = Paginator(posts, 10)
 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     return render(request, 'network/all_posts.html', {
-        'posts': posts
+      'posts': page_obj,
+      'paginator': paginator
     })
+    
   else:
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
