@@ -69,7 +69,7 @@ const onPostEdit = (event) => {
 
   postElement.innerHTML = `
   <form id="edit-post-${postId}">
-  <textarea id="new-content-${postId}" name="content" rows="5" cols="80">${postContent}</textarea>
+  <textarea id="new-content-${postId}" name="content" class="d-block w-100 mb-3" rows="3">${postContent}</textarea>
   <button class="btn btn-sm btn-primary" type='submit'>Save</button>
   <button class="btn btn-sm btn-outline-secondary" type="reset">Cancel</button>
   </form>
