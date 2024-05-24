@@ -119,19 +119,20 @@ const onPostEdit = (event) => {
 };
 
 const handleLiking = (event) => {
-  const button = event.target;
+  const button = event.target.closest(".like-button");
   const postId = button.dataset.postId;
   const likeCount = document.getElementById(`like-count-${postId}`);
+  console.log(postId, button.innerHTML.trim())
 
   fetch(`/like/${postId}`).then((res) => {
     if (res.status === 200) {
       res.text().then((text) => {
-        if (button.textContent.trim() === "Like") {
-          button.textContent = "Unlike";
-          likeCount.textContent = "Likes: " + text;
+        if (!button.innerHTML.trim().includes("bi-heart-fill")) {
+          button.innerHTML = `<i class="bi bi-heart-fill text-danger"></i>`;
+          likeCount.textContent = text;
         } else {
-          button.textContent = "Like";
-          likeCount.textContent = "Likes: " + text;
+          button.innerHTML = `<i class="bi bi-heart text-danger"></i>`;
+          likeCount.textContent = text;
         }
       });
     }
